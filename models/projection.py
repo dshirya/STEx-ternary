@@ -107,13 +107,6 @@ def plot_elements_from_plsda_loadings(pls_loadings, element_properties_file="dat
     # Project each element onto the PLS‑DA loading space (using dot product).
     coordinates = X_elements_normalized.dot(loadings_matrix)
     
-    # Compute explained variances on the projected data (for axis labels).
-    total_variance = np.sum(np.var(X_elements_normalized, axis=0))
-    comp_variances = np.var(coordinates, axis=0)
-    explained_ratio = comp_variances / total_variance * 100
-    xlabel = f"PLS component 1 ({explained_ratio[0]:.1f}%)"
-    ylabel = f"PLS component 2 ({explained_ratio[1]:.1f}%)"
-    
     # Merge computed coordinates into the element DataFrame.
     merged_df = df_props.copy()
     merged_df["PLSDA_Component_1"] = coordinates[:, 0]
@@ -149,7 +142,6 @@ def plot_elements_from_plsda_loadings(pls_loadings, element_properties_file="dat
 
     plt.tick_params(axis='both', labelsize=16)
     plt.tight_layout()
-    
     plt.savefig("elements_plot.png", dpi=500)
     plt.show()
     

@@ -146,8 +146,7 @@ def plot_elements_from_plsda_loadings(pls_loadings, element_properties_file="dat
                      str(row["Symbol"]), fontsize=13,
                      horizontalalignment='center', verticalalignment='center')
     
-    plt.xlabel(xlabel, fontsize=16)
-    plt.ylabel(ylabel, fontsize=16)
+
     plt.tick_params(axis='both', labelsize=16)
     plt.tight_layout()
     

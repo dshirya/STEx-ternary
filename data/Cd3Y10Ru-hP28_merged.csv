@@ -1,0 +1,83 @@
+Filename,Formula,Notes,Num Elements,2a,2c,6h (1),6h (2),12k,combined_RE10_l,combined_RE10
+,,,,0.000 0.000 0.000 ,0.333 0.667 0.250 ,0.541 0.083(2) 0.250 ,0.886(1) 0.772(3) 0.250 ,0.210(2) 0.419(3) 0.060 ,[],
+1722765.cif,Cd3RuTm10,,3,Tm,Ru,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1722761.cif,Cd3RuTb10,,3,Tb,Ru,Tb,Cd,Tb,"[['Tb', 3.0]]",Tb3.0
+1722767.cif,Cd3RhY10,,3,Y,Rh,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1147119.cif,Cd3RhTm10,,3,Tm,Rh,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1147127.cif,Cd3PtY10,,3,Y,Pt,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1147130.cif,Cd3PtTm10,,3,Tm,Pt,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1722742.cif,Cd3PdY10,,3,Y,Pd,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1147121.cif,Cd3PdTm10,,3,Tm,Pd,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1050240.cif,Cd3OsY10,,3,Y,Os,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1050247.cif,Cd3.11OsTm9.89,,3,Tm0.886Cd0.114,Os,Tm,Cd,Tm,"[['Tm', 2.886], ['Cd', 0.114]]",Tm2.886Cd0.114
+1050243.cif,Cd3OsTb10,,3,Tb,Os,Tb,Cd,Tb,"[['Tb', 3.0]]",Tb3.0
+1050241.cif,Cd3.13OsSm9.87,,3,Sm0.87Cd0.13,Os,Sm,Cd,Sm,"[['Sm', 2.87], ['Cd', 0.13]]",Sm2.87Cd0.13
+1722741.cif,Cd3NiY10,,3,Y,Ni,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1722759.cif,Cd3NiTm10,,3,Tm,Ni,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1722766.cif,Cd3Lu10Ru,,3,Lu,Ru,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1147120.cif,Cd3Lu10Rh,,3,Lu,Rh,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1147131.cif,Cd3Lu10Pt,,3,Lu,Pt,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1147114.cif,Cd3.11Lu9.89Pd,,3,Lu0.89Cd0.11,Pd,Lu,Cd,Lu,"[['Lu', 2.89], ['Cd', 0.11]]",Lu2.89Cd0.11
+1050248.cif,Cd3Lu10Os,,3,Lu,Os,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1722760.cif,Cd3Lu10Ni,,3,Lu,Ni,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1147115.cif,Cd2.91Ir1.09Y10,,3,Y,Ir,Y,Cd0.97Ir0.03,Y,"[['Y', 3.0]]",Y3.0
+1147125.cif,Cd3IrTm10,,3,Tm,Ir,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1147122.cif,Cd3IrTb10,,3,Tb,Ir,Tb,Cd,Tb,"[['Tb', 3.0]]",Tb3.0
+1147126.cif,Cd3IrLu10,,3,Lu,Ir,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1722763.cif,Cd3Ho10Ru,,3,Ho,Ru,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1147118.cif,Cd3Ho10Rh,,3,Ho,Rh,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1147128.cif,Cd3Ho10Pt,,3,Ho,Pt,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1050245.cif,Cd3Ho10Os,,3,Ho,Os,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1722749.cif,Cd3Ho10Ni,,3,Ho,Ni,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1147123.cif,Cd3Ho10Ir,,3,Ho,Ir,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1050242.cif,Cd3Gd10Os,,3,Gd,Os,Gd,Cd,Gd,"[['Gd', 3.0]]",Gd3.0
+1722746.cif,Cd3FeY10,,3,Y,Fe,Y,Cd,Y,"[['Y', 3.0]]",Y3.0
+1722750.cif,Cd3FeTm10,,3,Tm,Fe,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1722751.cif,Cd3FeLu10,,3,Lu,Fe,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1722748.cif,Cd3FeHo10,,3,Ho,Fe,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1722764.cif,Cd3Er10Ru,,3,Er,Ru,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1147113.cif,Cd3Er10Rh,,3,Er,Rh,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1147129.cif,Cd3Er10Pt,,3,Er,Pt,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1050246.cif,Cd3Er10Os,,3,Er,Os,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1722744.cif,Cd3.18Er9.82Ni,,3,Er0.82Cd0.18,Ni,Er,Cd,Er,"[['Er', 2.82], ['Cd', 0.18]]",Er2.82Cd0.18
+1147124.cif,Cd3Er10Ir,,3,Er,Ir,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1722743.cif,Cd3.08Er9.92Fe,,3,Er0.92Cd0.08,Fe,Er,Cd,Er,"[['Er', 2.92], ['Cd', 0.08]]",Er2.92Cd0.08
+1722762.cif,Cd3Dy10Ru,,3,Dy,Ru,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1147117.cif,Cd3Dy10Rh,,3,Dy,Rh,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1050244.cif,Cd3Dy10Os,,3,Dy,Os,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1722758.cif,Cd3Dy10Ni,,3,Dy,Ni,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1147116.cif,Cd3.07Dy9.93Ir,,3,Dy0.81Cd0.19,Ir,Dy,Cd0.96Dy0.04,Dy,"[['Dy', 2.81], ['Cd', 0.19]]",Dy2.81Cd0.19
+1722747.cif,Cd3Dy10Fe,,3,Dy,Fe,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1722745.cif,Cd2.90Co1.10Y10,,3,Y,Co,Y,Cd0.966Co0.034,Y,"[['Y', 3.0]]",Y3.0
+1722756.cif,Cd3CoTm10,,3,Tm,Co,Tm,Cd,Tm,"[['Tm', 3.0]]",Tm3.0
+1722752.cif,Cd3CoTb10,,3,Tb,Co,Tb,Cd,Tb,"[['Tb', 3.0]]",Tb3.0
+1722757.cif,Cd3CoLu10,,3,Lu,Co,Lu,Cd,Lu,"[['Lu', 3.0]]",Lu3.0
+1722754.cif,Cd3CoHo10,,3,Ho,Co,Ho,Cd,Ho,"[['Ho', 3.0]]",Ho3.0
+1722755.cif,Cd3CoEr10,,3,Er,Co,Er,Cd,Er,"[['Er', 3.0]]",Er3.0
+1722753.cif,Cd3CoDy10,,3,Dy,Co,Dy,Cd,Dy,"[['Dy', 3.0]]",Dy3.0
+1532707.cif,Al3RuY10,,3,Y,Ru,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532714.cif,Al3RhY10,,3,Y,Rh,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532723.cif,Al3PtY10,,3,Y,Pt,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532716.cif,Al3PdY10,,3,Y,Pd,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532719.cif,Al3OsY10,,3,Y,Os,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532711.cif,Al3NiY10,,3,Y,Ni,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532712.cif,Al3NiTm10,,3,Tm,Ni,Tm,Al,Tm,"[['Tm', 3.0]]",Tm3.0
+1532713.cif,Al3Lu10Ru,,3,Lu,Ru,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532715.cif,Al3Lu10Rh,,3,Lu,Rh,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532724.cif,Al3Lu10Pt,,3,Lu,Pt,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532718.cif,Al3Lu10Pd,,3,Lu,Pd,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532720.cif,Al3Lu10Os,,3,Lu,Os,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532721.cif,Al3IrY10,,3,Y,Ir,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532722.cif,Al3IrLu10,,3,Lu,Ir,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1532717.cif,Al3Ho10Pd,,3,Ho,Pd,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
+1147175.cif,Al3Ho10Ni,,3,Ho,Ni,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
+1147665.cif,Al10Fe0.83Ni3,,3,Al,Fe0.834,Al,Ni,Al,"[['Al', 3.0]]",Al3.0
+1532708.cif,Al3FeLu10,,3,Lu,Fe,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1147176.cif,Al3Er10Ni,,3,Er,Ni,Er,Al,Er,"[['Er', 3.0]]",Er3.0
+1147150.cif,Al3CoY10,,3,Y,Co,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1532709.cif,Al3CoY10,,3,Y,Co,Y,Al,Y,"[['Y', 3.0]]",Y3.0
+1147154.cif,Al3CoTm10,,3,Tm,Co,Tm,Al,Tm,"[['Tm', 3.0]]",Tm3.0
+1532710.cif,Al3CoLu10,,3,Lu,Co,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
+1147152.cif,Al3CoHo10,,3,Ho,Co,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
+1147153.cif,Al3CoEr10,,3,Er,Co,Er,Al,Er,"[['Er', 3.0]]",Er3.0
+1147151.cif,Al3CoDy10,,3,Dy,Co,Dy,Al,Dy,"[['Dy', 3.0]]",Dy3.0

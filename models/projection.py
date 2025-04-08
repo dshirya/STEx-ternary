@@ -143,7 +143,7 @@ def plot_elements_from_plsda_loadings(pls_loadings, element_properties_file="dat
                     color=color, s=250, alpha=0.8, label=group)
         for _, row in subset.iterrows():
             plt.text(row["PLSDA_Component_1"], row["PLSDA_Component_2"], 
-                     str(row["Symbol"]), fontsize=13,
+                     str(row["Symbol"]), fontsize=12,
                      horizontalalignment='center', verticalalignment='center')
     
 

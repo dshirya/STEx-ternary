@@ -1,9 +1,9 @@
-# plsda.py
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.cross_decomposition import PLSRegression
+from scipy.spatial import ConvexHull 
 
 def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     # -----------------------------
@@ -42,7 +42,7 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     explained_ratio = explained_variances / total_variance * 100
     
     # -----------------
-    # Generate scatter plot
+    # Generate scatter plot with convex hull outlines (filled) and centroids (no legend)
     # -----------------
     colors = [
         "#c3121e",  # Sangre
@@ -62,8 +62,31 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     
     for cls in unique_classes:
         idx = (y == cls)
-        plt.scatter(X_scores[idx, 0], X_scores[idx, 1],
+        points = X_scores[idx, :]  # Points for the current class
+
+        # Plot the scatter points for the class
+        plt.scatter(points[:, 0], points[:, 1],
                     color=color_map[cls], label=cls, s=250, alpha=0.5, edgecolors="none")
+                    
+        # Compute and plot a convex hull outline if there are enough points (>=3)
+        if points.shape[0] >= 3:
+            hull = ConvexHull(points)
+            hull_points = points[hull.vertices]
+            # Close the polygon by appending the first point at the end
+            hull_points = np.concatenate([hull_points, hull_points[0:1]], axis=0)
+            
+            # Fill the area of the convex hull with a transparent version of the class color
+            plt.fill(hull_points[:, 0], hull_points[:, 1],
+                     color=color_map[cls], alpha=0.2, label='_nolegend_')
+            
+            # Plot the outline of the convex hull
+            plt.plot(hull_points[:, 0], hull_points[:, 1],
+                     color=color_map[cls], lw=2, linestyle='--')
+        
+        # Compute and plot the centroid of the current class (centroid marker not added to the legend)
+        centroid = np.mean(points, axis=0)
+        plt.scatter(centroid[0], centroid[1], marker='X', color='black', 
+                    s=150, edgecolors='white', linewidth=2)
     
     plt.xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=16)
     plt.ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=16)
@@ -76,7 +99,6 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     # --------------------------------------
     # Compute and output full loadings per component
     # --------------------------------------
-    # Use the x_loadings_ from the model; each column corresponds to a component.
     x_loadings = pls.x_loadings_
     loadings_df = pd.DataFrame(
         x_loadings,

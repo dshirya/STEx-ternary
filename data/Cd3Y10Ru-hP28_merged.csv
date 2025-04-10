@@ -71,7 +71,6 @@ Filename,Formula,Notes,Num Elements,2a,2c,6h (1),6h (2),12k,combined_RE10_l,comb
 1532722.cif,Al3IrLu10,,3,Lu,Ir,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
 1532717.cif,Al3Ho10Pd,,3,Ho,Pd,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
 1147175.cif,Al3Ho10Ni,,3,Ho,Ni,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
-1147665.cif,Al10Fe0.83Ni3,,3,Al,Fe0.834,Al,Ni,Al,"[['Al', 3.0]]",Al3.0
 1532708.cif,Al3FeLu10,,3,Lu,Fe,Lu,Al,Lu,"[['Lu', 3.0]]",Lu3.0
 1147176.cif,Al3Er10Ni,,3,Er,Ni,Er,Al,Er,"[['Er', 3.0]]",Er3.0
 1147150.cif,Al3CoY10,,3,Y,Co,Y,Al,Y,"[['Y', 3.0]]",Y3.0
@@ -81,3 +80,4 @@ Filename,Formula,Notes,Num Elements,2a,2c,6h (1),6h (2),12k,combined_RE10_l,comb
 1147152.cif,Al3CoHo10,,3,Ho,Co,Ho,Al,Ho,"[['Ho', 3.0]]",Ho3.0
 1147153.cif,Al3CoEr10,,3,Er,Co,Er,Al,Er,"[['Er', 3.0]]",Er3.0
 1147151.cif,Al3CoDy10,,3,Dy,Co,Dy,Al,Dy,"[['Dy', 3.0]]",Dy3.0
+1722740.cif,Cd3Y10Ru,,3,Y,Ru,Y,Cd,Y,"[['Y', 3.0]]",Y3.0

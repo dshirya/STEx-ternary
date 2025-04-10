@@ -107,7 +107,7 @@ def process_element_features(df_final, excel_file):
     
     output_rows = []
     # Define the site composition columns to process.
-    site_columns = ["RE", "2c", "6h (2)"]
+    site_columns = ["RE", "2c", "6h"]
     
     # Process each row from df_final.
     for _, row in df_final.iterrows():

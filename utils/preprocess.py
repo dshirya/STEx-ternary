@@ -67,8 +67,9 @@ def process_csv(filepath):
     """
     Reads and processes the CSV file with the following steps:
       - Reads a comma-delimited CSV file while skipping the second row.
+      - Renames the "6h (2)" column to "6h".
       - Drops the columns 'Notes', 'Num Elements', 'combined_RE10_l', and 'combined_RE10'.
-      - Creates a new column 'combined_elements' by combining and summing the values in
+      - Creates a new column 'RE' by combining and summing the values in
         the '2a', '6h (1)', and '12k' columns.
       - Removes the now redundant '2a', '6h (1)', and '12k' columns.
     
@@ -80,11 +81,17 @@ def process_csv(filepath):
     """
     # Read the CSV (comma-separated) and skip the second row (index=1)
     df = pd.read_csv(filepath, sep=',', skiprows=[1])
+    
+    # Rename "6h (2)" column to "6h"
+    if "6h (2)" in df.columns:
+        df = df.rename(columns={"6h (2)": "6h"})
+    
     # Drop unwanted columns
     df = df.drop(columns=['Notes', 'Num Elements', 'combined_RE10_l', 'combined_RE10'])
-    # Create a new column with combined elements from selected columns
+    
+    # Create a new column 'RE' with combined elements from selected columns
     df["RE"] = df.apply(combine_elements_from_row, axis=1)
+    
     # Remove the original columns used for combining
     df = df.drop(columns=['2a', '6h (1)', '12k'])
     return df
-

@@ -55,7 +55,7 @@ def plot_elements_from_plsda_loadings(pls_loadings,
     with the loadings.
     
     In addition, elements are colored according to their group using the provided dictionaries.
-    If a DataFrame containing site information is provided (with columns "Filename", "Formula", "2c", "6h (2)", "RE"),
+    If a DataFrame containing site information is provided (with columns "Filename", "Formula", "M", "6h (2)", "R"),
     the chemical element symbols for each site are extracted (using the SiteElement class) and an outline is drawn:
       - For sites with three or more points, a convex hull is computed, outlined with a dashed line, and filled with color (alpha=0.2).
       - For sites with exactly two points, a dashed line is drawn connecting them.
@@ -65,7 +65,7 @@ def plot_elements_from_plsda_loadings(pls_loadings,
                       The "Feature" names should correspond to property names (columns) in the element property file.
       - element_properties_file: Path to the Excel file containing element properties.
           It must include a "Symbol" column for element labels; all other columns are considered as properties.
-      - sites_df: Optional DataFrame with site information. Expected columns: "Filename", "Formula", "2c", "6h (2)", "RE".
+      - sites_df: Optional DataFrame with site information. Expected columns: "Filename", "Formula", "M", "6h (2)", "R".
     
     Returns:
       - coordinates: A NumPy array (n_elements x 2) with the projected coordinates.
@@ -143,10 +143,10 @@ def plot_elements_from_plsda_loadings(pls_loadings,
         subset = merged_df[merged_df["Group"] == group]
         color = group_colors.get(group, group_colors["Other"])
         plt.scatter(subset["PLSDA_Component_1"], subset["PLSDA_Component_2"], 
-                    color=color, s=250, alpha=0.8, label=group)
+                    color=color, s=600, alpha=0.6, label=group)
         for _, row in subset.iterrows():
             plt.text(row["PLSDA_Component_1"], row["PLSDA_Component_2"], 
-                     str(row["Symbol"]), fontsize=12,
+                     str(row["Symbol"]), fontsize=18,
                      horizontalalignment='center', verticalalignment='center')
     
     # -------- New: Draw dashed outline (filled with alpha=0.2) for sites if sites_df is provided --------
@@ -169,7 +169,7 @@ def plot_elements_from_plsda_loadings(pls_loadings,
                 unique_RE.add(site.site_RE)
         
         # Define colors for outlines.
-        site_outline_colors = {"2c": "#0348a1", "6h (2)": "#ffb01c", "RE": "#c3121e"}
+        site_outline_colors = {"M": "#0348a1", "6h (2)": "#ffb01c", "R": "#c3121e"}
         
         def plot_outline(subset, label, color):
             """
@@ -198,20 +198,20 @@ def plot_elements_from_plsda_loadings(pls_loadings,
                 plt.fill(hull_points_closed[:, 0], hull_points_closed[:, 1], 
                          color=color, alpha=0.2)
         
-        # For site "2c":
+        # For site "M":
         subset_2c = merged_df[merged_df["Symbol"].isin(unique_2c)]
-        plot_outline(subset_2c, "2c Outline", site_outline_colors["2c"])
+        plot_outline(subset_2c, "2c Outline", site_outline_colors["M"])
         
         # For site "6h (2)":
         subset_6h2 = merged_df[merged_df["Symbol"].isin(unique_6h2)]
         plot_outline(subset_6h2, "6h (2) Outline", site_outline_colors["6h (2)"])
         
-        # For site "RE":
+        # For site "R":
         subset_RE = merged_df[merged_df["Symbol"].isin(unique_RE)]
-        plot_outline(subset_RE, "RE Outline", site_outline_colors["RE"])
+        plot_outline(subset_RE, "RE Outline", site_outline_colors["R"])
     # -------------------------------------------------------------------------------------------
     
-    plt.tick_params(axis='both', labelsize=16)
+    plt.tick_params(axis='both', labelsize=18)
     plt.tight_layout()
     plt.savefig("elements_plot.png", dpi=500)
     plt.show()

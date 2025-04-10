@@ -8,11 +8,11 @@ class SiteElement:
     This class assumes the DataFrame row has the following columns:
       - "Filename"
       - "Formula"
-      - "2c"
-      - "6h"
-      - "RE"
+      - "M"
+      - "X"
+      - "R"
     
-    The site columns ("2c", "6h", "RE") are parsed so that if a cell contains
+    The site columns ("M", "X", "R") are parsed so that if a cell contains
     a mixture of elements (e.g., "Cd0.114Tm2.886"), the element with the larger numeric
     count is selected as the primary element.
     
@@ -24,9 +24,9 @@ class SiteElement:
         self.filename = row["Filename"]
         self.formula = row["Formula"]
         
-        self.site_2c = self.get_primary_element(row["2c"])
-        self.site_6h2 = self.get_primary_element(row["6h"])
-        self.site_RE = self.get_primary_element(row["RE"])
+        self.site_2c = self.get_primary_element(row["M"])
+        self.site_6h2 = self.get_primary_element(row["X"])
+        self.site_RE = self.get_primary_element(row["R"])
         
         # Parse the formula and save its primary element in self.elements
         self.elements = self.parse_formula(self.formula)

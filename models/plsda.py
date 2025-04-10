@@ -88,10 +88,12 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
         plt.scatter(centroid[0], centroid[1], marker='X', color='black', 
                     s=150, edgecolors='white', linewidth=2)
     
-    plt.xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=16)
-    plt.ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=16)
-    plt.legend(fontsize=16)
-    plt.tick_params(axis='both', labelsize=16)
+    plt.xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=18)
+    plt.ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=18)
+    legend = plt.legend(fontsize=18)
+    for text in legend.get_texts():
+        text.set_fontstyle('italic')
+    plt.tick_params(axis='both', labelsize=18)
     plt.tight_layout()
     plt.savefig("PLS_DA_Scatter_Plot.png", dpi=500)
     plt.show()

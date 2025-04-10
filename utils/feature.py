@@ -83,7 +83,7 @@ def process_element_features(df_final, excel_file):
     
     Steps:
       - Load the Excel file (which contains element features) and drop any columns with NaN values.
-      - For each row in df_final, process each of the site composition columns: "RE", "2c", and "6h (2)".
+      - For each row in df_final, process each of the site composition columns: "R", "M", and "6h (2)".
       - For each nonempty site composition, compute weighted features using `compute_site_features`.
       - The Site_Label is set to the name of the column that provided the composition.
       - Return a new DataFrame with columns: 'Filename', 'Formula', 'Site', 'Site_Label', and the computed feature columns.
@@ -91,7 +91,7 @@ def process_element_features(df_final, excel_file):
     Parameters:
         df_final (pd.DataFrame): The DataFrame containing sites. It must include:
             - "Filename" and "Formula"
-            - Site composition columns (e.g., "RE", "2c", and "6h (2)").
+            - Site composition columns (e.g., "R", "M", and "6h (2)").
         excel_file (str): The path to the Excel file with element features.
         
     Returns:
@@ -107,7 +107,7 @@ def process_element_features(df_final, excel_file):
     
     output_rows = []
     # Define the site composition columns to process.
-    site_columns = ["RE", "2c", "6h"]
+    site_columns = ["R", "M", "X"]
     
     # Process each row from df_final.
     for _, row in df_final.iterrows():

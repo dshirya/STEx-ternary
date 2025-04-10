@@ -1,197 +1,144 @@
-import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.spatial import ConvexHull
-from utils.class_object import SiteElement
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.cross_decomposition import PLSRegression
+import random, math
 
-# ---------------- Appearance Variables ----------------
-# Coordinate scaling
-COORD_MULTIPLIER = 5
+# ----- Helper functions for minimum enclosing circle -----
 
-# Circle settings
-BASE_CIRCLE_RADIUS = 0.5
-BASE_CIRCLE_LINEWIDTH = 2
-PATCH_CIRCLE_RADIUS = 0.49
+def dist(p, q):
+    """Compute Euclidean distance between points p and q."""
+    return math.hypot(p[0] - q[0], p[1] - q[1])
 
-# Text settings
-TEXT_SIZE = 20
+def is_in_circle(p, center, radius):
+    """Check if point p is inside the circle given by center and radius (with tolerance)."""
+    return dist(p, center) <= radius + 1e-8
 
-# Figure size factors (to compute dimensions based on the coordinate range)
-FIGURE_WIDTH_FACTOR = 0.8
-FIGURE_HEIGHT_FACTOR = 0.8
+def circle_from_two_points(p, q):
+    """Return the circle defined by two points p and q."""
+    center = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
+    radius = dist(p, q) / 2.0
+    return center, radius
 
-# Convex hull outline settings
-HULL_LINETYPE = "--"
-HULL_LINEWIDTH = 2
-HULL_FILL_ALPHA = 0.2
+def circle_from_three_points(p, q, r):
+    """Return the circle defined by three non-collinear points p, q, and r."""
+    d = 2 * (p[0]*(q[1]-r[1]) + q[0]*(r[1]-p[1]) + r[0]*(p[1]-q[1]))
+    if d == 0:
+        # Collinear points; this should not normally occur.
+        return p, float('inf')
+    ux = ((p[0]**2 + p[1]**2)*(q[1]-r[1]) + (q[0]**2 + q[1]**2)*(r[1]-p[1]) + (r[0]**2 + r[1]**2)*(p[1]-q[1])) / d
+    uy = ((p[0]**2 + p[1]**2)*(r[0]-q[0]) + (q[0]**2 + q[1]**2)*(p[0]-r[0]) + (r[0]**2 + r[1]**2)*(q[0]-p[0])) / d
+    center = (ux, uy)
+    radius = dist(center, p)
+    return center, radius
 
-# Site colors for patch overlays and convex hull outlines
-SITE_OUTLINE_COLORS = {"2c": "#0348a1", "6h (2)": "#ffb01c", "RE": "#c3121e"}
-
-# Compound marker settings
-COMPOUND_MARKER_SIZE = 10
-COMPOUND_LINE_WIDTH = 1
-COMPOUND_MARKER_COLOR = "black"
-# --------------------------------------------------------
-
-def parse_formula_elements(formula):
+def minimum_enclosing_circle(points):
     """
-    Parses a chemical formula string to extract a list of (element, count) pairs.
-
-    For example:
-        "La2NiO4" -> [("La", 2.0), ("Ni", 1.0), ("O", 4.0)]
-
-    If no numeric count is given, defaults to 1.0.
+    Computes the minimum enclosing circle for a set of 2D points using a simple randomized algorithm.
+    Returns the center and radius of the circle.
     """
-    s = str(formula).strip()
-    if not s:
-        return []
-    pattern = r'([A-Z][a-z]*)(\d*\.?\d*)'
-    matches = re.findall(pattern, s)
-    results = []
-    for element, count_str in matches:
-        count = float(count_str) if count_str != "" else 1.0
-        results.append((element, count))
-    return results
-
-def visualize_elements(sites_df=None, coordinate_file="outputs/coordinates.xlsx"):
-    """
-    Visualizes chemical element coordinates with site-based patches, convex hull outlines,
-    and compound weighted coordinate markers with connecting lines.
-
-    The coordinates are read from an Excel file with columns: "Symbol", "x", "y".
-      - All coordinate values are multiplied by COORD_MULTIPLIER.
-      - Figure dimensions are computed as:
-            fig_width = (x_max - x_min) * FIGURE_WIDTH_FACTOR
-            fig_height = (y_max - y_min) * FIGURE_HEIGHT_FACTOR
-
-    Each element is plotted as a base circle (edge only) with centered text.
-    If sites_df is provided (with columns "Filename", "Formula", "2c", "6h (2)", "RE"),
-    it is processed via the SiteElement class to extract unique primary element symbols for each site.
-    For elements belonging to a site, a filled patch (overlay circle) is drawn using a site-specific color.
-    Convex hull outlines (dashed and filled with transparency) are drawn around the groups of elements per site.
+    shuffled = points.copy()
+    random.shuffle(shuffled)
     
-    Additionally, the compound formula (from the "Formula" column in sites_df) is parsed and its
-    weighted coordinate is computed using the element coordinates. A black circle marker is plotted at
-    the weighted coordinate, and black lines are drawn connecting this marker to each element 
-    that forms the compound.
+    center = (0, 0)
+    radius = 0
+    for i, p in enumerate(shuffled):
+        if not is_in_circle(p, center, radius):
+            center = p
+            radius = 0
+            for j in range(i):
+                q = shuffled[j]
+                if not is_in_circle(q, center, radius):
+                    center, radius = circle_from_two_points(p, q)
+                    for k in range(j):
+                        r_point = shuffled[k]
+                        if not is_in_circle(r_point, center, radius):
+                            center, radius = circle_from_three_points(p, q, r_point)
+    return center, radius
 
-    Parameters:
-      coordinate_file : str
-          Path to the Excel file with coordinates.
-      sites_df : DataFrame or None
-          DataFrame with site information. Expected columns: "Filename", "Formula", "2c", "6h (2)", "RE".
+# ----- Updated PLS-DA plotting function using minimum enclosing circles -----
 
-    The function saves the plot as "elements_visualization.png" and displays it.
-    """
-    # ----- Load coordinates and apply scaling -----
-    coord_df = pd.read_excel(coordinate_file)
-    # Multiply coordinates by the defined multiplier.
-    coord_df["x"] = coord_df["x"] * COORD_MULTIPLIER
-    coord_df["y"] = coord_df["y"] * COORD_MULTIPLIER
+def pls_da_circle(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
+    # -----------------------------
+    # Prepare the data for PLS‑DA
+    # -----------------------------
+    # Drop non-numerical columns: "Filename", "Formula", "Site", "Site_Label"
+    X = df.drop(columns=["Filename", "Formula", "Site", "Site_Label"])
+    y = df["Site_Label"]
 
-    # Determine plot dimensions based on the coordinate range.
-    x_min, x_max = coord_df["x"].min(), coord_df["x"].max()
-    y_min, y_max = coord_df["y"].min(), coord_df["y"].max()
-    fig_width = (x_max - x_min) * FIGURE_WIDTH_FACTOR
-    fig_height = (y_max - y_min) * FIGURE_HEIGHT_FACTOR
-
-    # Create figure with white background (no grid, no axes).
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height), facecolor="white")
-    ax.set_facecolor("white")
-    ax.axis("off")
-
-    # ----- Plot base circles and element text -----
-    element_coords = {}  # dictionary mapping element symbol to its (x,y) coordinates.
-    for idx, row in coord_df.iterrows():
-        x, y, element = row["x"], row["y"], row["Symbol"]
-        element_coords[element] = (x, y)
-        base_circle = plt.Circle((x, y), radius=BASE_CIRCLE_RADIUS,
-                                 edgecolor="black", facecolor="none",
-                                 linewidth=BASE_CIRCLE_LINEWIDTH, alpha=1.0, zorder=3)
-        ax.add_patch(base_circle)
-        ax.text(x, y, element, fontsize=TEXT_SIZE, ha="center", va="center", zorder=4)
-
-    # ----- Process site information to extract unique element sets -----
-    unique_sites = {"2c": set(), "6h (2)": set(), "RE": set()}
-    if sites_df is not None:
-        for _, row in sites_df.iterrows():
-            site = SiteElement(row)
-            if site.site_2c:
-                unique_sites["2c"].add(site.site_2c)
-            if site.site_6h2:
-                unique_sites["6h (2)"].add(site.site_6h2)
-            if site.site_RE:
-                unique_sites["RE"].add(site.site_RE)
-
-    # ----- Draw colored patches on top of base circles -----
-    for element, (x, y) in element_coords.items():
-        patch_color = None
-        for site in ["2c", "6h (2)", "RE"]:
-            if element in unique_sites[site]:
-                patch_color = SITE_OUTLINE_COLORS[site]
-                break
-        if patch_color is not None:
-            patch_circle = plt.Circle((x, y), radius=PATCH_CIRCLE_RADIUS,
-                                      edgecolor=None, facecolor=patch_color,
-                                      alpha=0.5, zorder=3.5)
-            ax.add_patch(patch_circle)
-
-    # ----- Define helper function to plot convex hull outlines -----
-    def plot_site_outline(element_set, color, label):
-        points = []
-        for elem in element_set:
-            if elem in element_coords:
-                points.append(element_coords[elem])
-        points = np.array(points)
-        n_points = len(points)
-        if n_points < 2:
-            return
-        elif n_points == 2:
-            ax.plot(points[:, 0], points[:, 1], linestyle=HULL_LINETYPE,
-                    color=color, linewidth=HULL_LINEWIDTH, label=label)
-        else:
-            hull = ConvexHull(points)
-            hull_points = points[hull.vertices]
-            hull_points_closed = np.vstack([hull_points, hull_points[0]])
-            ax.plot(hull_points_closed[:, 0], hull_points_closed[:, 1],
-                    linestyle=HULL_LINETYPE, color=color, linewidth=HULL_LINEWIDTH, label=label)
-            ax.fill(hull_points_closed[:, 0], hull_points_closed[:, 1],
-                    color=color, alpha=HULL_FILL_ALPHA)
-
-    # ----- Draw convex hull outlines for each site group -----
-    if sites_df is not None:
-        for site, color in SITE_OUTLINE_COLORS.items():
-            plot_site_outline(unique_sites[site], color, f"{site} Outline")
-
-    # ----- Compute weighted compound markers from formula column -----
-    if sites_df is not None:
-        # For each compound (row) in the sites DataFrame, parse the formula and compute a weighted coordinate.
-        for idx, row in sites_df.iterrows():
-            formula = row["Formula"]
-            items = parse_formula_elements(formula)
-            if not items:
-                continue
-            total_count = sum(count for _, count in items)
-            weighted_sum = np.array([0.0, 0.0])
-            compound_elements = []  # store elements in the compound that have coordinates
-            for el, count in items:
-                if el in element_coords:
-                    compound_elements.append(el)
-                    weighted_sum += count * np.array(element_coords[el])
-            if total_count > 0 and compound_elements:
-                weighted_coord = weighted_sum / total_count
-                # Plot the compound marker (black circle marker).
-                ax.plot(weighted_coord[0], weighted_coord[1], marker="o",
-                        markersize=COMPOUND_MARKER_SIZE, markerfacecolor=COMPOUND_MARKER_COLOR,
-                        zorder=5, alpha= 0.5, markeredgecolor = "none")
-                # Draw connecting lines from the compound marker to each element used in the compound.
-                for el in compound_elements:
-                    el_coord = element_coords[el]
-                    ax.plot([weighted_coord[0], el_coord[0]], [weighted_coord[1], el_coord[1]],
-                            color=COMPOUND_MARKER_COLOR, linestyle="-", linewidth=COMPOUND_LINE_WIDTH, zorder=4, alpha = 0.3)
-
+    # External scaling: standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Normalize each sample (row) using MinMaxScaler (for range scaling)
+    minmax_scaler = MinMaxScaler()
+    X_normalized = minmax_scaler.fit_transform(X_scaled)
+    
+    # One-hot encode the class labels for PLS‑DA
+    y_dummies = pd.get_dummies(y)
+    Y = y_dummies.values  # shape: (n_samples, n_classes)
+    
+    # -------------------------------------
+    # Fit the PLS‑DA model with 2 components
+    # -------------------------------------
+    pls = PLSRegression(n_components=2, scale=False)
+    pls.fit(X_normalized, Y)
+    
+    # Get the X scores (latent space projections)
+    X_scores = pls.x_scores_
+    
+    # ---------------------------------------
+    # Compute explained variance (for labels)
+    # ---------------------------------------
+    total_variance = np.sum(np.var(X_normalized, axis=0))
+    explained_variances = np.var(X_scores, axis=0)
+    explained_ratio = explained_variances / total_variance * 100
+    
+    # -----------------
+    # Plotting setup
+    # -----------------
+    colors = [
+        "#c3121e",  # Sangre
+        "#0348a1",  # Neptune
+        "#ffb01c",  # Pumpkin
+        "#027608",  # Clover
+        "#1dace6",  # Cerulean
+        "#9c5300",  # Cocoa
+        "#9966cc",  # Amethyst
+    ]
+    
+    plt.style.use('ggplot')
+    plt.figure(figsize=(8, 6), dpi=500)
+    
+    unique_classes = y.unique()
+    color_map = {cls: colors[i % len(colors)] for i, cls in enumerate(unique_classes)}
+    
+    # For each class, compute the minimum enclosing circle and plot
+    for cls in unique_classes:
+        idx = (y == cls)
+        points = X_scores[idx, :]  # Points for this class
+        pts_list = [tuple(point) for point in points]
+        center, radius = minimum_enclosing_circle(pts_list)
+        
+        # Plot the scatter points for the class
+        plt.scatter(points[:, 0], points[:, 1],
+                    color=color_map[cls], label=cls, s=250, alpha=0.5, edgecolors="none")
+                    
+        # Optionally, mark the center of the minimum circle
+        plt.scatter(center[0], center[1], marker='X', color='black', 
+                    s=150, edgecolors='white', linewidth=2, label='_nolegend_')
+        
+        # Generate circle coordinates for the minimum enclosing circle
+        angle = np.linspace(0, 2 * np.pi, 100)
+        circle_x = center[0] + radius * np.cos(angle)
+        circle_y = center[1] + radius * np.sin(angle)
+        plt.plot(circle_x, circle_y, color=color_map[cls], lw=2, linestyle='--')
+    
+    plt.xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=16)
+    plt.ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=16)
+    plt.legend(fontsize=16)
+    plt.tick_params(axis='both', labelsize=16)
     plt.tight_layout()
-    plt.savefig("elements_visualization.png", dpi=500, bbox_inches="tight")
+    plt.savefig("PLS_DA_Scatter_Plot_circle.png", dpi=500)
     plt.show()

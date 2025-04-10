@@ -30,10 +30,10 @@ def recommendation_engine(fixed_elements, sites_df, coordinate_file, output_file
     
     Parameters:
       fixed_elements : dict
-          Dictionary with exactly two keys (from {"2c", "6h", "RE"}) with their fixed element symbols.
-          For example: {"2c": "Ru", "6h": "Cd"}.
+          Dictionary with exactly two keys (from {"M", "X", "R"}) with their fixed element symbols.
+          For example: {"M": "Ru", "X": "Cd"}.
       sites_df : pandas.DataFrame
-          DataFrame with site information. Must contain columns "2c", "6h", and "RE".
+          DataFrame with site information. Must contain columns "M", "X", and "R".
       coordinate_file : str
           Path to the Excel file with coordinates. Expected columns: "Symbol", "x", "y".
       output_file : str, optional
@@ -45,7 +45,7 @@ def recommendation_engine(fixed_elements, sites_df, coordinate_file, output_file
     """
     # Global constants
     COORD_MULTIPLIER = 5
-    SITE_LABELS = {"2c", "6h", "RE"}
+    SITE_LABELS = {"M", "X", "R"}
     
     # --- Helper: extract primary element from a cell (ignore numbers) ---
     def get_primary(cell_value):
@@ -172,3 +172,117 @@ def recommendation_engine(fixed_elements, sites_df, coordinate_file, output_file
     print(f"Recommendations saved to '{output_file}'.")
     return final_df
 
+def best_recommendation(final_df):
+    """
+    Given the recommendations DataFrame with columns:
+      Element_rec1, Value_rec1, Element_rec2, Value_rec2, Element_rec3, Value_rec3,
+    this function returns a list of tuples (candidate, avg_score) for all candidate
+    elements that appear in all three recommendation lists.
+    
+    Parameters:
+      final_df : pandas.DataFrame
+          DataFrame output from recommendation_engine containing the recommendation 
+          elements and their associated scores.
+    
+    Returns:
+      list of tuples: [(candidate1, avg_score1), (candidate2, avg_score2), ...]
+          If no candidate is common to all lists, returns an empty list.
+    """
+    # Extract candidate elements from each recommendation, ignoring empty strings.
+    rec1_elements = set(final_df["Element_rec1"][final_df["Element_rec1"] != ""])
+    rec2_elements = set(final_df["Element_rec2"][final_df["Element_rec2"] != ""])
+    rec3_elements = set(final_df["Element_rec3"][final_df["Element_rec3"] != ""])
+    
+    # Identify candidates common to all three recommendation lists.
+    common_candidates = rec1_elements & rec2_elements & rec3_elements
+    if not common_candidates:
+        print("No common element found in all recommendations")
+        return []
+    
+    # For each candidate, compute the average score.
+    candidate_scores = []
+    for candidate in common_candidates:
+        score1 = final_df.loc[final_df["Element_rec1"] == candidate, "Value_rec1"].iloc[0]
+        score2 = final_df.loc[final_df["Element_rec2"] == candidate, "Value_rec2"].iloc[0]
+        score3 = final_df.loc[final_df["Element_rec3"] == candidate, "Value_rec3"].iloc[0]
+        avg_score = (score1 + score2 + score3) / 3.0
+        candidate_scores.append((candidate, avg_score))
+    
+    # Optionally, sort candidates by their average score (highest first).
+    candidate_scores.sort(key=lambda x: x[1], reverse=True)
+    
+    print("Common candidates with average scores:")
+    for cand, score in candidate_scores:
+        print(f"  {cand}: {score}")
+        
+    return candidate_scores
+
+def add_candidate(df, fixed_elements, candidates, filename="new_candidate.cif"):
+    """
+    Adds new rows to the sites DataFrame for each candidate element found in the 
+    common recommendations.
+    
+    For each candidate:
+      - The candidate element is placed in the missing site (among "M", "X", "R"),
+        where the missing site is determined by the keys missing from fixed_elements.
+      - The other two site columns are set using the values in fixed_elements.
+      - A Formula is constructed by concatenating the element symbols in the order: 
+        6h, 2c, RE. In the printed formula the 6h site gets a stoichiometric number
+        of 3, the 2c site gets 1 (usually omitted), and the RE site gets 10.
+        For example, if fixed_elements is {"M": "Ru", "X": "Cd"} and the candidate is "Gd",
+        then the row will have: X = "Cd", M = "Ru", R = "Gd" and the formula becomes "Cd3RuGd10".
+      - The Notes column is set to "candidate".
+      - The Filename column is set to the provided filename.
+    
+    Parameters:
+      df : pandas.DataFrame
+          The existing DataFrame to which the new candidate rows will be added. It must have columns: 
+          "Filename", "Formula", "Notes", "M", "X", "R".
+      fixed_elements : dict
+          Dictionary of fixed element symbols. Must contain exactly two keys from {"M", "X", "R"}.
+      candidates : list of tuples
+          Each tuple is (candidate, avg_score), typically produced by common_recommendations.
+      filename : str, optional
+          Filename for the new rows (default "new_candidate.cif").
+    
+    Returns:
+      pandas.DataFrame : The updated DataFrame with the new candidate rows added.
+    """
+    # The complete set of site labels is assumed to be {"M", "X", "R"}.
+    site_labels = {"M", "X", "R"}
+    fixed_keys = set(fixed_elements.keys())
+    
+    # Identify the missing site (the key not provided in fixed_elements)
+    missing_site = list(site_labels - fixed_keys)[0]
+    
+    for cand_item in candidates:
+        # cand_item is expected to be a tuple (candidate, avg_score)
+        candidate = cand_item[0] if isinstance(cand_item, tuple) else cand_item
+        
+        new_row = {}
+        new_row["Filename"] = filename
+        new_row["Notes"] = "candidate"
+        
+        # For each of the three site columns, assign the candidate in the missing site
+        # and use fixed_elements for the other two.
+        for site in site_labels:
+            if site in fixed_elements:
+                new_row[site] = fixed_elements[site]
+            else:
+                new_row[site] = candidate
+        
+        # Construct the formula.
+        # Here we follow the fixed order: 6h site from column 'X', then 2c from 'M', then RE from 'R'.
+        # (This works correctly if fixed_elements is, for example, {"M": "Ru", "X": "Cd"}
+        # so that the candidate always is placed in "R". If fixed_elements differ, the ordering
+        # still remains fixed as X3, M, R10.)
+        part_6h = f"{new_row['X']}3"
+        part_2c = f"{new_row['M']}"  # subscript 1 is typically omitted
+        part_RE = f"{new_row['R']}10"
+        new_row["Formula"] = f"{part_6h}{part_2c}{part_RE}"
+        
+        # Append the new row to the DataFrame.
+        df.loc[len(df)] = new_row
+    
+    print("New candidate rows added to the DataFrame.")
+    return df

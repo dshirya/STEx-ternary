@@ -173,7 +173,7 @@ def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="o
                     marker_color = "#027608"
                     alpha = 1
                     size = COMPOUND_MARKER_SIZE * 1.5
-                    line_width = COMPOUND_LINE_WIDTH * 2  # Double the line width for candidate.
+                    line_width = COMPOUND_LINE_WIDTH * 3  # Double the line width for candidate.
                     # Instead of plotting a filled marker, create a Circle patch:
                     candidate_marker = plt.Circle((weighted_coord[0], weighted_coord[1]),
                                                 radius=0.25,  # size/2 gives an appropriate radius
@@ -184,6 +184,7 @@ def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="o
                                                 alpha=alpha,
                                                 zorder=5)
                     ax.add_patch(candidate_marker)
+                    linestyle="--"
                 else:
                     marker_color = COMPOUND_MARKER_COLOR
                     alpha = 0.3
@@ -195,12 +196,13 @@ def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="o
                             markerfacecolor=marker_color,
                             zorder=5, alpha=alpha,
                             markeredgecolor="none")
+                    linestyle="-"
 
                 # Draw connecting lines from the compound marker to each element of the compound.
                 for el in compound_elements:
                     el_coord = element_coords[el]
                     ax.plot([weighted_coord[0], el_coord[0]], [weighted_coord[1], el_coord[1]],
-                            color=marker_color, linestyle="-",
+                            color=marker_color, linestyle=linestyle,
                             linewidth=line_width, zorder=4, alpha=alpha)
 
     plt.tight_layout()

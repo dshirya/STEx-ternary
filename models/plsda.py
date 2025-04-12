@@ -1,9 +1,31 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.cross_decomposition import PLSRegression
-from scipy.spatial import ConvexHull 
+
+def plot_confidence_ellipse(x, y, ax, n_std=2.0, edgecolor='black', facecolor='none', alpha=1.0, **kwargs):
+    if x.size != y.size:
+        raise ValueError("x and y must have the same size")
+    
+    # Compute the covariance and its eigenvalues/eigenvectors
+    cov = np.cov(x, y)
+    mean_x, mean_y = np.mean(x), np.mean(y)
+    eigvals, eigvecs = np.linalg.eig(cov)
+    
+    # Determine the angle in degrees
+    angle = np.degrees(np.arctan2(eigvecs[1, 0], eigvecs[0, 0]))
+    
+    # Width and height of the ellipse scaled by the standard deviation factor
+    width, height = 2 * n_std * np.sqrt(eigvals)
+    
+    # Create and add the ellipse patch with the specified alpha for transparency
+    ellipse = Ellipse((mean_x, mean_y), width=width, height=height,
+                      angle=angle, edgecolor=edgecolor,
+                      facecolor=facecolor, lw=2, alpha=alpha, **kwargs)
+    ax.add_patch(ellipse)
+    return ellipse
 
 def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     # -----------------------------
@@ -17,7 +39,8 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # Normalize each sample (row) to unit norm (L2 normalization)
+    # Normalize each sample (row) to unit norm (L2 normalization) using a MinMaxScaler
+    # (alternatively, you might want to use a row-wise normalization method)
     minmax_scaler = MinMaxScaler()
     X_normalized = minmax_scaler.fit_transform(X_scaled)
     
@@ -42,7 +65,7 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     explained_ratio = explained_variances / total_variance * 100
     
     # -----------------
-    # Generate scatter plot with convex hull outlines (filled) and centroids (no legend)
+    # Generate scatter plot with ellipsoids for class space and centroids (no legend for ellipses)
     # -----------------
     colors = [
         "#c3121e",  # Sangre
@@ -55,45 +78,39 @@ def run_pls_da(df, output_loadings_excel="PLS_DA_Full_Loadings.xlsx"):
     ]
     
     plt.style.use('ggplot')
-    plt.figure(figsize=(8, 6), dpi=500)
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=500)
     
     unique_classes = y.unique()
     color_map = {cls: colors[i % len(colors)] for i, cls in enumerate(unique_classes)}
     
+    # Loop over each class to plot the points and the corresponding confidence ellipse
     for cls in unique_classes:
         idx = (y == cls)
         points = X_scores[idx, :]  # Points for the current class
-
-        # Plot the scatter points for the class
-        plt.scatter(points[:, 0], points[:, 1],
-                    color=color_map[cls], label=cls, s=250, alpha=0.5, edgecolors="none")
-                    
-        # Compute and plot a convex hull outline if there are enough points (>=3)
-        if points.shape[0] >= 3:
-            hull = ConvexHull(points)
-            hull_points = points[hull.vertices]
-            # Close the polygon by appending the first point at the end
-            hull_points = np.concatenate([hull_points, hull_points[0:1]], axis=0)
-            
-            # Fill the area of the convex hull with a transparent version of the class color
-            plt.fill(hull_points[:, 0], hull_points[:, 1],
-                     color=color_map[cls], alpha=0.2, label='_nolegend_')
-            
-            # Plot the outline of the convex hull
-            plt.plot(hull_points[:, 0], hull_points[:, 1],
-                     color=color_map[cls], lw=2, linestyle='--')
         
-        # Compute and plot the centroid of the current class (centroid marker not added to the legend)
-        centroid = np.mean(points, axis=0)
-        plt.scatter(centroid[0], centroid[1], marker='X', color='black', 
-                    s=150, edgecolors='white', linewidth=2)
+        # Scatter the points for the class
+        ax.scatter(points[:, 0], points[:, 1],
+                   color=color_map[cls], label=cls, s=250, alpha=0.5, edgecolors="none")
+        
+        # Add the ellipsoidal space
+        # You can adjust n_std for a wider/narrower ellipse if desired.
+        plot_confidence_ellipse(points[:, 0], points[:, 1], ax, n_std=2.0,
+                        edgecolor=color_map[cls],
+                        facecolor=color_map[cls],  # Use the same color as the edge or another preferred color
+                        alpha=0.2)
     
-    plt.xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=18)
-    plt.ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=18)
-    legend = plt.legend(fontsize=18)
+    ax.set_xlabel(f"LV1 ({explained_ratio[0]:.1f}%)", fontsize=18)
+    ax.set_ylabel(f"LV2 ({explained_ratio[1]:.1f}%)", fontsize=18)
+    
+    # Adding and styling the legend
+    legend = ax.legend(fontsize=18)
     for text in legend.get_texts():
         text.set_fontstyle('italic')
+    
     plt.tick_params(axis='both', labelsize=18)
+
+    ax.set_aspect('equal', adjustable='box')
+    
     plt.tight_layout()
     plt.savefig("PLS_DA_Scatter_Plot.png", dpi=500)
     plt.show()

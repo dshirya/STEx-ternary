@@ -7,40 +7,39 @@ from utils.class_object import SiteElement
 
 # Define your element groups and colors:
 elements_by_group = {
-    "alkali_metals": ["Li", "Na", "K", "Rb", "Cs", "Fr"],
+    "alkali_metals": ["Cd", "Al"],
     "alkaline_earth_metals": ["Be", "Mg", "Ca", "Sr", "Ba", "Ra"],
-    "transition_metals": [
-        "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
-        "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
-        "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
-        "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn"
+    "transition_metals": ["Os", "Ir", "Rh", "Pd", "Ru", "Pt", "Fe", "Co", "Ni",
     ],
     "lanthanides": [
-        "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", 
-        "Ho", "Er", "Tm", "Yb", "Lu"
+        "Sm", "Gd", "Tb", "Dy", 
+        "Ho", "Er", "Tm", "Lu", "Y"
     ],
     "actinides": [
-        "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", 
-        "Es", "Fm", "Md", "No", "Lr"
+        "Yb", "Eu", "La", "Ce", "Pr", "Nd", "Pm", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", 
+        "Es", "Fm", "Md", "No", "Lr", "Li", "Na", "K", "Rb", "Cs", "Fr"
     ],
-    "metalloids": ["B", "Si", "Ge", "As", "Sb", "Te", "Po"],
+    "metalloids": ["B", "Si", "Ge", "As", "Sb", "Te", "Po", "Sc", "Ti", "V", "Cr", "Mn", "Cu", "Zn",
+         "Zr", "Nb", "Mo",  "Tc",   "Ag", 
+        "Hf", "Ta", "W", "Re",  "Au", "Hg",
+        "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn"],
     "non_metals": ["H", "C", "N", "O", "P", "S", "Se"],
     "halogens": ["F", "Cl", "Br", "I", "At", "Ts"],
     "noble_gases": ["He", "Ne", "Ar", "Kr", "Xe", "Rn", "Og"],
-    "post_transition_metals": ["Al", "Ga", "In", "Sn", "Tl", "Pb", "Bi", "Nh", "Fl", "Mc", "Lv"]
+    "post_transition_metals": ["Ga", "In", "Sn", "Tl", "Pb", "Bi", "Nh", "Fl", "Mc", "Lv"]
 }
 
 group_colors = {
-    "alkali_metals": "blue",
-    "alkaline_earth_metals": "turquoise",
-    "transition_metals": "palegreen",
-    "lanthanides": "yellow",
-    "actinides": "goldenrod",
-    "metalloids": "orange",
-    "non_metals": "orangered",
-    "halogens": "red",
-    "noble_gases": "skyblue",
-    "post_transition_metals": "darkgreen",
+    "alkali_metals": "#ffb01c",
+    "alkaline_earth_metals": "grey",
+    "transition_metals": "#0348a1",
+    "lanthanides": "#c3121e",
+    "actinides": "grey",
+    "metalloids": "grey",
+    "non_metals": "grey",
+    "halogens": "grey",
+    "noble_gases": "grey",
+    "post_transition_metals": "grey",
     "Other": "grey"
 }
 
@@ -150,26 +149,26 @@ def plot_elements_from_plsda_loadings(pls_loadings,
                      horizontalalignment='center', verticalalignment='center')
     
     # -------- New: Draw dashed outline (filled with alpha=0.2) for sites if sites_df is provided --------
-    if sites_df is not None:
-        # Import the SiteElement class.
-        # It is assumed that this class is stored in utils/class.py.
+    # if sites_df is not None:
+    #     # Import the SiteElement class.
+    #     # It is assumed that this class is stored in utils/class.py.
         
 
-        # Initialize sets to collect unique primary elements for each site.
-        unique_2c = set()
-        unique_6h2 = set()
-        unique_RE = set()
-        for _, row in sites_df.iterrows():
-            site = SiteElement(row)
-            if site.site_2c:
-                unique_2c.add(site.site_2c)
-            if site.site_6h2:
-                unique_6h2.add(site.site_6h2)
-            if site.site_RE:
-                unique_RE.add(site.site_RE)
+    #     # Initialize sets to collect unique primary elements for each site.
+    #     unique_2c = set()
+    #     unique_6h2 = set()
+    #     unique_RE = set()
+    #     for _, row in sites_df.iterrows():
+    #         site = SiteElement(row)
+    #         if site.site_2c:
+    #             unique_2c.add(site.site_2c)
+    #         if site.site_6h2:
+    #             unique_6h2.add(site.site_6h2)
+    #         if site.site_RE:
+    #             unique_RE.add(site.site_RE)
         
-        # Define colors for outlines.
-        site_outline_colors = {"M": "#0348a1", "6h (2)": "#ffb01c", "R": "#c3121e"}
+    #     # Define colors for outlines.
+    #     site_outline_colors = {"M": "#0348a1", "6h (2)": "#ffb01c", "R": "#c3121e"}
         
         def plot_outline(subset, label, color):
             """
@@ -198,19 +197,23 @@ def plot_elements_from_plsda_loadings(pls_loadings,
                 plt.fill(hull_points_closed[:, 0], hull_points_closed[:, 1], 
                          color=color, alpha=0.2)
         
-        # For site "M":
-        subset_2c = merged_df[merged_df["Symbol"].isin(unique_2c)]
-        plot_outline(subset_2c, "2c Outline", site_outline_colors["M"])
+        # # For site "M":
+        # subset_2c = merged_df[merged_df["Symbol"].isin(unique_2c)]
+        # plot_outline(subset_2c, "2c Outline", site_outline_colors["M"])
         
-        # For site "6h (2)":
-        subset_6h2 = merged_df[merged_df["Symbol"].isin(unique_6h2)]
-        plot_outline(subset_6h2, "6h (2) Outline", site_outline_colors["6h (2)"])
+        # # For site "6h (2)":
+        # subset_6h2 = merged_df[merged_df["Symbol"].isin(unique_6h2)]
+        # plot_outline(subset_6h2, "6h (2) Outline", site_outline_colors["6h (2)"])
         
-        # For site "R":
-        subset_RE = merged_df[merged_df["Symbol"].isin(unique_RE)]
-        plot_outline(subset_RE, "RE Outline", site_outline_colors["R"])
+        # # For site "R":
+        # subset_RE = merged_df[merged_df["Symbol"].isin(unique_RE)]
+        # plot_outline(subset_RE, "RE Outline", site_outline_colors["R"])
     # -------------------------------------------------------------------------------------------
-    
+    plt.xlabel("PC1", fontsize=18)
+    plt.ylabel("PC2", fontsize=18)
+
+    plt.gca().set_aspect('equal', adjustable='box')
+
     plt.tick_params(axis='both', labelsize=18)
     plt.tight_layout()
     plt.savefig("elements_plot.png", dpi=500)

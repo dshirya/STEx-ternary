@@ -1,5 +1,4 @@
 import re
-import pandas as pd
 
 class SiteElement:
     """
@@ -24,12 +23,12 @@ class SiteElement:
         self.filename = row["Filename"]
         self.formula = row["Formula"]
         
-        self.site_2c = self.get_primary_element(row["M"])
-        self.site_6h2 = self.get_primary_element(row["X"])
-        self.site_RE = self.get_primary_element(row["R"])
+        self.site_M = self.get_primary_element(row["M"])
+        self.site_X = self.get_primary_element(row["X"])
+        self.site_R = self.get_primary_element(row["R"])
         
         # Parse the formula and save its primary element in self.elements
-        self.elements = self.parse_formula(self.formula)
+        self.elements = self.get_primary_element(self.formula)
     
     @staticmethod
     def parse_elements(cell_value):
@@ -78,23 +77,5 @@ class SiteElement:
         if not parsed_items:
             return None
         # Select the element with the highest numeric count
-        primary_element, _ = max(parsed_items, key=lambda x: x[1])
-        return primary_element
-    
-    def parse_formula(self, formula):
-        """
-        Parses the compound formula and returns its primary element.
-        
-        If multiple elements are present, the element with the highest numeric count is chosen.
-        
-        Parameters:
-            formula (str): The compound formula string.
-            
-        Returns:
-            str: The primary element symbol from the formula (or None if not found).
-        """
-        parsed_items = self.parse_elements(formula)
-        if not parsed_items:
-            return None
         primary_element, _ = max(parsed_items, key=lambda x: x[1])
         return primary_element

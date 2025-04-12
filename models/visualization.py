@@ -1,5 +1,4 @@
 import re
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
@@ -55,7 +54,7 @@ def parse_formula_elements(formula):
         results.append((element, count))
     return results
 
-def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="outputs/coordinates.xlsx"):
+def visualize_elements(coord_df, sites_df=None, compounds_markers=True):
     """
     Visualizes chemical element coordinates with site-based patches, convex hull outlines,
     and compound weighted coordinate markers with connecting lines.
@@ -71,7 +70,7 @@ def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="o
     The function saves the plot with a dynamically generated file name and displays it.
     """
     # ----- Load coordinates and apply scaling -----
-    coord_df = pd.read_excel(coordinate_file)
+    coord_df = coord_df.copy()
     coord_df["x"] = coord_df["x"] * COORD_MULTIPLIER
     coord_df["y"] = coord_df["y"] * COORD_MULTIPLIER
 
@@ -102,12 +101,12 @@ def visualize_elements(sites_df=None, compounds_markers=True, coordinate_file="o
     if sites_df is not None:
         for _, row in sites_df.iterrows():
             site = SiteElement(row)
-            if site.site_2c:
-                unique_sites["M"].add(site.site_2c)
-            if site.site_6h2:
-                unique_sites["X"].add(site.site_6h2)
-            if site.site_RE:
-                unique_sites["R"].add(site.site_RE)
+            if site.site_M:
+                unique_sites["M"].add(site.site_M)
+            if site.site_X:
+                unique_sites["X"].add(site.site_X)
+            if site.site_R:
+                unique_sites["R"].add(site.site_R)
 
     # ----- Draw colored patches on top of base circles -----
     for element, (x, y) in element_coords.items():

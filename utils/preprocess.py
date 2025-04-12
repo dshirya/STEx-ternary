@@ -2,22 +2,7 @@ import pandas as pd
 import re
 
 def parse_elements(cell_value):
-    """
-    Parses a string that contains one or more element symbols along with their numeric counts.
-    Uses the regex pattern: r'([A-Z][a-z]*)(\d*\.?\d*)'
     
-    Examples:
-      - "Tm" returns [('Tm', 1.0)]
-      - "Tm0.886Cd0.114" returns [('Tm', 0.886), ('Cd', 0.114)]
-    
-    If the numeric part is missing, defaults to a count of 1.0.
-    
-    Parameters:
-        cell_value (str): The cell content from one of the element columns.
-        
-    Returns:
-        list of tuples: A list containing (element, count) pairs.
-    """
     s = str(cell_value).strip()
     if not s:
         return []
@@ -26,31 +11,27 @@ def parse_elements(cell_value):
     results = []
     for element, count_str in matches:
         count = float(count_str) if count_str != "" else 1.0
-        if element:  # Avoid empty matches
+        if element:
             results.append((element, count))
     return results
 
-def combine_elements_from_row(row):
+def combine_elements(row, columns):
     """
-    Combines element counts from the '2a', '6h (1)', and '12k' columns of a given row.
-    For each column the function uses `parse_elements` to extract element-count pairs. If an element
-    appears multiple times across these columns, their counts are summed.
-    
-    The resulting string is built from alphabetically sorted elements, 
-    with the count omitted if it is exactly 1.
+    Combines element counts from specified columns in a row.
     
     Parameters:
         row (pd.Series): A row from the DataFrame.
-        
+        columns (list): List of column names to combine.
+    
     Returns:
         str: A concatenated string of elements and their summed counts.
     """
-    columns_to_combine = ['2a', '6h (1)', '12k']
     combined_counts = {}
     
-    for col in columns_to_combine:
-        cell_value = row[col]
-        parsed_items = parse_elements(cell_value)
+    for col in columns:
+        if col not in row or pd.isna(row[col]):
+            continue
+        parsed_items = parse_elements(row[col])
         for element, count in parsed_items:
             combined_counts[element] = combined_counts.get(element, 0) + count
     
@@ -63,36 +44,30 @@ def combine_elements_from_row(row):
             combined_str += f"{element}{total_count}"
     return combined_str
 
-def process_csv(filepath):
+def process_csv(filepath, rename_map=None):
     """
-    Reads and processes the CSV file with the following steps:
-      - Reads a comma-delimited CSV file while skipping the second row.
-      - Renames the "6h (2)" column to "X".
-      - Drops the columns 'Notes', 'Num Elements', 'combined_RE10_l', and 'combined_RE10'.
-      - Creates a new column 'RE' by combining and summing the values in
-        the '2a', '6h (1)', and '12k' columns.
-      - Removes the now redundant '2a', '6h (1)', and '12k' columns.
+    Processes the CSV file and combines user-specified columns.
     
     Parameters:
-        filepath (str): The path to the CSV file.
-        
+        filepath (str): Path to the CSV file.
+        rename_map (dict): Mapping from new column names to list of old columns to combine.
+                           Example: {"R": ["2a", "6h (1)", "12k"], "X": ["6h (2)"], "M": ["2c"]}
+    
     Returns:
-        pd.DataFrame: The final processed DataFrame.
+        pd.DataFrame: Processed DataFrame with renamed/combined columns.
     """
-    # Read the CSV (comma-separated) and skip the second row (index=1)
+    if rename_map is None:
+        rename_map = {"R": ["2a", "6h (1)", "12k"], "X": ["6h (2)"], "M": ["2c"]}
+    
     df = pd.read_csv(filepath, sep=',', skiprows=[1])
     
-    # Rename "6h (2)" column to "X"
-    if "6h (2)" in df.columns:
-        df = df.rename(columns={"6h (2)": "X"})
-    if "2c" in df.columns:
-        df = df.rename(columns={"2c": "M"})
-    # Drop unwanted columns
-    df = df.drop(columns=['Num Elements', 'combined_RE10_l', 'combined_RE10'])
+    # Drop unnecessary columns if they exist
+    cols_to_drop = ['Num Elements', 'combined_RE10_l', 'combined_RE10']
+    df = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
+
+    # Combine specified columns
+    for new_col, old_cols in rename_map.items():
+        df[new_col] = df.apply(lambda row: combine_elements(row, old_cols), axis=1)
+        df = df.drop(columns=[col for col in old_cols if col in df.columns])
     
-    # Create a new column 'RE' with combined elements from selected columns
-    df["R"] = df.apply(combine_elements_from_row, axis=1)
-    
-    # Remove the original columns used for combining
-    df = df.drop(columns=['2a', '6h (1)', '12k'])
     return df

@@ -1,34 +1,6 @@
 import pandas as pd
-import re
+from utils.preprocess import parse_elements
 
-def parse_elements(cell_value):
-    """
-    Parses a string that contains one or more element symbols with their numeric counts.
-    Uses the regex pattern: r'([A-Z][a-z]*)(\d*\.?\d*)'
-    
-    Examples:
-      - "Tm" returns [('Tm', 1.0)]
-      - "Tm0.886Cd0.114" returns [('Tm', 0.886), ('Cd', 0.114)]
-    
-    If the numeric part is missing, a count of 1.0 is assumed.
-    
-    Parameters:
-        cell_value (str): The string from one of the element columns.
-        
-    Returns:
-        list of tuples: Each tuple is (element, count).
-    """
-    s = str(cell_value).strip()
-    if not s:
-        return []
-    pattern = r'([A-Z][a-z]*)(\d*\.?\d*)'
-    matches = re.findall(pattern, s)
-    results = []
-    for element, count_str in matches:
-        count = float(count_str) if count_str != "" else 1.0
-        if element:  # avoid empty matches
-            results.append((element, count))
-    return results
 
 def compute_site_features(site_formula, properties_df):
     """
@@ -77,7 +49,7 @@ def compute_site_features(site_formula, properties_df):
     
     return features_weighted
 
-def process_element_features(df_final, excel_file):
+def process_features(df_final, excel_file):
     """
     Processes the properties Excel file and computes the site features for each entry in df_final.
     

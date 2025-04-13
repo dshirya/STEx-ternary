@@ -44,7 +44,7 @@ def combine_elements(row, columns):
             combined_str += f"{element}{total_count}"
     return combined_str
 
-def process_csv(filepath, rename_map=None):
+def process_csv(df, rename_map=None):
     """
     Processes the CSV file and combines user-specified columns.
     
@@ -59,7 +59,7 @@ def process_csv(filepath, rename_map=None):
     if rename_map is None:
         rename_map = {"R": ["2a", "6h (1)", "12k"], "X": ["6h (2)"], "M": ["2c"]}
     
-    df = pd.read_csv(filepath, sep=',', skiprows=[1])
+    df = df.drop(index=1)
     
     # Drop unnecessary columns if they exist
     cols_to_drop = ['Num Elements', 'combined_RE10_l', 'combined_RE10']

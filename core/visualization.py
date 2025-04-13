@@ -213,6 +213,6 @@ def visualize_elements(coord_df, sites_df=None, compounds_markers=True):
     if sites_df is not None and candidate_found:
         output_filename += "_candidate"
         
-    output_filepath = output_filename + ".png"
+    output_filepath = output_filename + ".svg"
     plt.savefig(output_filepath, dpi=500, bbox_inches="tight")
     plt.show()

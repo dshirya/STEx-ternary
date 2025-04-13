@@ -112,7 +112,7 @@ def run_pls_da(df, output_loadings_excel="outputs/PLS_DA_loadings.xlsx"):
     ax.set_aspect('equal', adjustable='box')
     
     plt.tight_layout()
-    plt.savefig("plots/PLS_DA_Scatter_Plot.png", dpi=500)
+    plt.savefig("plots/PLS_DA_Scatter_Plot.svg", dpi=500)
     plt.show()
     
     # --------------------------------------

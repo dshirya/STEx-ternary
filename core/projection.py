@@ -39,7 +39,7 @@ def prepare_coordinates(pls_loadings, element_properties_file):
 
     return df_props, coordinates
 
-def plot_elements(df, group_colors, output_path="plots/elements_plot.png"):
+def plot_elements(df, group_colors, output_path="plots/elements_plot.svg"):
     plt.figure(figsize=(8, 6), dpi=500)
     plt.style.use("ggplot")
 

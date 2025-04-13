@@ -59,7 +59,7 @@ class SiteElement:
             if element:  # Avoid empty matches
                 results.append((element, count))
         return results
-
+    
     def get_primary_element(self, cell_value):
         """
         Parses a site cell value and returns its primary element.
